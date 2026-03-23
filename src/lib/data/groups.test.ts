@@ -16,8 +16,8 @@ vi.mock("@/lib/data/teams", () => ({
 	getGroups: vi.fn(),
 }));
 
-import { prisma } from "@/lib/prisma";
 import { getGroups as getGroupLetters } from "@/lib/data/teams";
+import { prisma } from "@/lib/prisma";
 import { getAllGroupStandings, getGroupStandings } from "./groups";
 
 function makeTeam(overrides: Partial<Team>): Team {
@@ -83,7 +83,12 @@ describe("getGroupStandings", () => {
 	it("correctly calculates a win/loss", async () => {
 		vi.mocked(prisma.team.findMany).mockResolvedValue([teamA, teamB]);
 		vi.mocked(prisma.match.findMany).mockResolvedValue([
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t2", homeScore: 2, awayScore: 1 }),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t2",
+				homeScore: 2,
+				awayScore: 1,
+			}),
 		]);
 
 		const standings = await getGroupStandings("A");
@@ -109,7 +114,12 @@ describe("getGroupStandings", () => {
 	it("correctly calculates a draw", async () => {
 		vi.mocked(prisma.team.findMany).mockResolvedValue([teamA, teamB]);
 		vi.mocked(prisma.match.findMany).mockResolvedValue([
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t2", homeScore: 1, awayScore: 1 }),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t2",
+				homeScore: 1,
+				awayScore: 1,
+			}),
 		]);
 
 		const standings = await getGroupStandings("A");
@@ -123,17 +133,52 @@ describe("getGroupStandings", () => {
 	});
 
 	it("sorts by points desc, then goal difference, then goals for", async () => {
-		vi.mocked(prisma.team.findMany).mockResolvedValue([teamA, teamB, teamC, teamD]);
+		vi.mocked(prisma.team.findMany).mockResolvedValue([
+			teamA,
+			teamB,
+			teamC,
+			teamD,
+		]);
 		vi.mocked(prisma.match.findMany).mockResolvedValue([
 			// USA beats all: 9 pts, GD=+6
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t2", homeScore: 2, awayScore: 0 }),
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t3", homeScore: 2, awayScore: 0 }),
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t4", homeScore: 2, awayScore: 0 }),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t2",
+				homeScore: 2,
+				awayScore: 0,
+			}),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t3",
+				homeScore: 2,
+				awayScore: 0,
+			}),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t4",
+				homeScore: 2,
+				awayScore: 0,
+			}),
 			// Mexico beats Canada and Panama: 6 pts
-			makeMatch({ homeTeamId: "t2", awayTeamId: "t3", homeScore: 1, awayScore: 0 }),
-			makeMatch({ homeTeamId: "t2", awayTeamId: "t4", homeScore: 1, awayScore: 0 }),
+			makeMatch({
+				homeTeamId: "t2",
+				awayTeamId: "t3",
+				homeScore: 1,
+				awayScore: 0,
+			}),
+			makeMatch({
+				homeTeamId: "t2",
+				awayTeamId: "t4",
+				homeScore: 1,
+				awayScore: 0,
+			}),
 			// Canada draws Panama: 1pt each
-			makeMatch({ homeTeamId: "t3", awayTeamId: "t4", homeScore: 0, awayScore: 0 }),
+			makeMatch({
+				homeTeamId: "t3",
+				awayTeamId: "t4",
+				homeScore: 0,
+				awayScore: 0,
+			}),
 		]);
 
 		const standings = await getGroupStandings("A");
@@ -150,8 +195,18 @@ describe("getGroupStandings", () => {
 	it("accumulates multiple matches for the same team", async () => {
 		vi.mocked(prisma.team.findMany).mockResolvedValue([teamA, teamB, teamC]);
 		vi.mocked(prisma.match.findMany).mockResolvedValue([
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t2", homeScore: 2, awayScore: 0 }),
-			makeMatch({ homeTeamId: "t1", awayTeamId: "t3", homeScore: 3, awayScore: 1 }),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t2",
+				homeScore: 2,
+				awayScore: 0,
+			}),
+			makeMatch({
+				homeTeamId: "t1",
+				awayTeamId: "t3",
+				homeScore: 3,
+				awayScore: 1,
+			}),
 		]);
 
 		const standings = await getGroupStandings("A");

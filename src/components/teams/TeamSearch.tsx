@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface TeamSearchProps {
@@ -11,19 +11,21 @@ interface TeamSearchProps {
 export function TeamSearch({ defaultValue }: TeamSearchProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const [value, setValue] = useState(defaultValue ?? "");
 
-	const handleSearch = useCallback(
-		(value: string) => {
+	useEffect(() => {
+		const timer = setTimeout(() => {
 			const params = new URLSearchParams(searchParams.toString());
 			if (value.trim()) {
 				params.set("search", value.trim());
 			} else {
 				params.delete("search");
 			}
-			router.push(`/teams?${params.toString()}`);
-		},
-		[router, searchParams],
-	);
+			router.replace(`/teams?${params.toString()}`);
+		}, 300);
+
+		return () => clearTimeout(timer);
+	}, [value, router, searchParams]);
 
 	return (
 		<div className="relative w-full sm:max-w-xs">
@@ -34,8 +36,8 @@ export function TeamSearch({ defaultValue }: TeamSearchProps) {
 				id="team-search"
 				type="search"
 				placeholder="Search teams…"
-				defaultValue={defaultValue}
-				onChange={(e) => handleSearch(e.target.value)}
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
 				className={cn(
 					"w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-400",
 					"focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20",

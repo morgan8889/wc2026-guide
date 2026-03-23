@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -11,6 +14,8 @@ interface NavProps {
 }
 
 export function Nav({ className }: NavProps) {
+	const pathname = usePathname();
+
 	return (
 		<nav
 			className={cn(
@@ -28,16 +33,26 @@ export function Nav({ className }: NavProps) {
 					WC 2026
 				</Link>
 				<ul className="flex items-center gap-1">
-					{navLinks.map(({ href, label }) => (
-						<li key={href}>
-							<Link
-								href={href}
-								className="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-							>
-								{label}
-							</Link>
-						</li>
-					))}
+					{navLinks.map(({ href, label }) => {
+						const isActive =
+							href === "/" ? pathname === href : pathname.startsWith(href);
+						return (
+							<li key={href}>
+								<Link
+									href={href}
+									className={cn(
+										"rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
+										isActive
+											? "text-zinc-900 dark:text-zinc-100"
+											: "text-zinc-600 dark:text-zinc-400",
+									)}
+									aria-current={isActive ? "page" : undefined}
+								>
+									{label}
+								</Link>
+							</li>
+						);
+					})}
 				</ul>
 			</div>
 		</nav>

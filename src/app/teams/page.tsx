@@ -44,17 +44,17 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
 
 			{/* Filters */}
 			<div className="mb-6 flex flex-col gap-4">
-				<Suspense>
+				<Suspense fallback={null}>
 					<GroupFilter groups={groups} selectedGroup={group} />
 				</Suspense>
 				<div className="flex flex-wrap items-center gap-4">
-					<Suspense>
+					<Suspense fallback={null}>
 						<ConfederationFilter
 							confederations={confederations}
 							selectedConfederation={confederation}
 						/>
 					</Suspense>
-					<Suspense>
+					<Suspense fallback={null}>
 						<TeamSearch defaultValue={search} />
 					</Suspense>
 				</div>

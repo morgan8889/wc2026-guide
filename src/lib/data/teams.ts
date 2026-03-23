@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
 export interface TeamsParams {
@@ -25,7 +26,7 @@ export async function getTeams(params?: TeamsParams) {
 	});
 }
 
-export async function getTeamByCode(code: string) {
+export const getTeamByCode = cache(async (code: string) => {
 	return prisma.team.findUnique({
 		where: { code: code.toUpperCase() },
 		include: {
@@ -48,7 +49,7 @@ export async function getTeamByCode(code: string) {
 			},
 		},
 	});
-}
+});
 
 export async function getGroups(): Promise<string[]> {
 	const teams = await prisma.team.findMany({

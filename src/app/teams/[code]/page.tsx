@@ -63,7 +63,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
 			<div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				<InfoCard label="Group" value={`Group ${team.group}`} />
 				<InfoCard label="Confederation" value={team.confederation} />
-				{team.ranking && (
+				{team.ranking != null && (
 					<InfoCard label="FIFA Ranking" value={`#${team.ranking}`} />
 				)}
 				{team.coach && <InfoCard label="Coach" value={team.coach} />}

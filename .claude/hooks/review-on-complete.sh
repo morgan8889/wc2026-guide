@@ -1,35 +1,49 @@
 #!/bin/bash
-# TaskCompleted hook: run code-review before allowing task completion
+# TaskCompleted hook: enforce quality gates before allowing task completion
 # Exit 0 = allow completion, Exit 2 = reject with feedback (stderr → Claude)
+#
+# Strategy (from community research):
+# - Deterministic checks (fast, free): biome, tsc, vitest, build
+# - These catch 80% of issues mechanically
+# - Semantic review (slow, costs tokens) runs via GitHub Actions after PR
+# - TaskCompleted + exit code 2 is the recommended enforcement mechanism
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-# Get the diff against main
+# Only run if there are changes from main
 DIFF=$(git diff main --stat 2>/dev/null)
 if [ -z "$DIFF" ]; then
-  # No changes from main — nothing to review
   exit 0
 fi
 
-# Run a lightweight review via claude --print
-REVIEW=$(claude -p --bare "Review the git diff of this branch against main. Run: git diff main
+ERRORS=""
 
-Focus on:
-- Bugs and correctness issues
-- Security problems (hardcoded secrets, missing auth, injection)
-- TypeScript type safety issues
-- Missing error handling
+# 1. Biome lint + format
+echo "Running biome check..." >&2
+BIOME_OUT=$(npx biome check . 2>&1)
+if [ $? -ne 0 ]; then
+  ERRORS="${ERRORS}\n❌ BIOME CHECK FAILED:\n${BIOME_OUT}\n\nRun: npx biome check --write . then fix remaining issues.\n"
+fi
 
-If you find CRITICAL or HIGH severity issues, output them as a numbered list starting with 'ISSUES FOUND:'.
-If everything looks acceptable, output exactly 'LGTM'.
+# 2. TypeScript
+echo "Running tsc..." >&2
+TSC_OUT=$(npx tsc --noEmit 2>&1)
+if [ $? -ne 0 ]; then
+  ERRORS="${ERRORS}\n❌ TYPESCRIPT CHECK FAILED:\n${TSC_OUT}\n"
+fi
 
-Be concise — only flag real problems, not style preferences." 2>/dev/null)
+# 3. Tests
+echo "Running tests..." >&2
+TEST_OUT=$(npx vitest run 2>&1)
+if [ $? -ne 0 ]; then
+  ERRORS="${ERRORS}\n❌ TESTS FAILED:\n${TEST_OUT}\n"
+fi
 
-if echo "$REVIEW" | grep -q "ISSUES FOUND:"; then
-  echo "Code review found issues that must be fixed before completion:" >&2
-  echo "" >&2
-  echo "$REVIEW" >&2
+if [ -n "$ERRORS" ]; then
+  echo "Quality gates failed. Fix these issues before completing:" >&2
+  echo -e "$ERRORS" >&2
   exit 2
 fi
 
+echo "✅ All quality gates passed." >&2
 exit 0

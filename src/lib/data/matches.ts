@@ -1,4 +1,5 @@
 import { cache } from "react";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export interface MatchesParams {
@@ -63,43 +64,18 @@ export const getMatchById = cache(async (id: string) => {
 	});
 });
 
-export interface MatchWithTeamsAndVenue {
-	id: string;
-	matchNumber: number;
-	stage: string;
-	group: string | null;
-	dateTime: Date;
-	homeTeamId: string | null;
-	awayTeamId: string | null;
-	homeScore: number | null;
-	awayScore: number | null;
-	homePenalties: number | null;
-	awayPenalties: number | null;
-	status: string;
-	venueId: string;
-	homeTeam: {
-		id: string;
-		name: string;
-		flag: string | null;
-		code: string;
-	} | null;
-	awayTeam: {
-		id: string;
-		name: string;
-		flag: string | null;
-		code: string;
-	} | null;
-	venue: { id: string; name: string; city: string; country: string };
-}
+export type MatchWithTeamsAndVenue = Prisma.MatchGetPayload<{
+	include: typeof matchInclude;
+}>;
 
 export async function getMatchesByGroup(): Promise<
 	Record<string, MatchWithTeamsAndVenue[]>
 > {
-	const matches = (await prisma.match.findMany({
+	const matches = await prisma.match.findMany({
 		where: { stage: "GROUP" },
 		include: matchInclude,
 		orderBy: [{ group: "asc" }, { dateTime: "asc" }, { matchNumber: "asc" }],
-	})) as MatchWithTeamsAndVenue[];
+	});
 
 	const grouped: Record<string, MatchWithTeamsAndVenue[]> = {};
 	for (const match of matches) {

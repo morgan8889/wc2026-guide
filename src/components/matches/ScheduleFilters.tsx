@@ -2,16 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-
-const STAGE_LABELS: Record<string, string> = {
-	GROUP: "Group Stage",
-	ROUND_OF_32: "Round of 32",
-	ROUND_OF_16: "Round of 16",
-	QUARTER: "Quarter-final",
-	SEMI: "Semi-final",
-	THIRD_PLACE: "Third Place",
-	FINAL: "Final",
-};
+import { STAGE_LABELS } from "@/lib/constants";
 
 interface Venue {
 	id: string;
@@ -49,7 +40,8 @@ export function ScheduleFilters({
 			} else {
 				params.delete(key);
 			}
-			// Reset to list view on filter change (unless view=groups already there)
+			// Drop groups view when a filter is applied so filters are not silently ignored
+			params.delete("view");
 			router.push(`/matches?${params.toString()}`);
 		},
 		[router, searchParams],
@@ -154,7 +146,6 @@ export function ScheduleFilters({
 							updateParam("team", (e.target as HTMLInputElement).value);
 						}
 					}}
-					onBlur={(e) => updateParam("team", e.target.value)}
 					className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
 				/>
 			</div>

@@ -11,9 +11,8 @@ import {
 	getMatchesByGroup,
 	getStages,
 } from "@/lib/data/matches";
-import { getGroups } from "@/lib/data/teams";
+import { getGroups, getTeamIdBySearch } from "@/lib/data/teams";
 import { getVenues } from "@/lib/data/venues";
-import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
 	title: "Schedule — World Cup 2026 Guide",
@@ -28,15 +27,6 @@ interface SchedulePageProps {
 		venueId?: string;
 		team?: string;
 	}>;
-}
-
-async function getTeamIdBySearch(search: string): Promise<string | undefined> {
-	if (!search) return undefined;
-	const team = await prisma.team.findFirst({
-		where: { name: { contains: search } },
-		select: { id: true },
-	});
-	return team?.id ?? undefined;
 }
 
 export default async function SchedulePage({
@@ -70,7 +60,11 @@ export default async function SchedulePage({
 			<div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
 				<Header totalCount={totalCount} matchCount={null} />
 				<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-					<Suspense fallback={null}>
+					<Suspense
+						fallback={
+							<div className="h-[62px] w-80 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+						}
+					>
 						<ScheduleFilters
 							groups={groups}
 							stages={stages}
@@ -81,7 +75,11 @@ export default async function SchedulePage({
 							teamSearch={teamSearch}
 						/>
 					</Suspense>
-					<Suspense fallback={null}>
+					<Suspense
+						fallback={
+							<div className="h-[38px] w-36 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+						}
+					>
 						<ViewToggle currentView="groups" />
 					</Suspense>
 				</div>
@@ -119,7 +117,11 @@ export default async function SchedulePage({
 		<div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
 			<Header totalCount={totalCount} matchCount={matches.length} />
 			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-				<Suspense fallback={null}>
+				<Suspense
+					fallback={
+						<div className="h-[62px] w-80 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+					}
+				>
 					<ScheduleFilters
 						groups={groups}
 						stages={stages}
@@ -130,7 +132,11 @@ export default async function SchedulePage({
 						teamSearch={teamSearch}
 					/>
 				</Suspense>
-				<Suspense fallback={null}>
+				<Suspense
+					fallback={
+						<div className="h-[38px] w-36 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+					}
+				>
 					<ViewToggle currentView="list" />
 				</Suspense>
 			</div>

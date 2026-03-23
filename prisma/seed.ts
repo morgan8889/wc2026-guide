@@ -560,7 +560,9 @@ async function seed() {
 
 	// Seed group stage matches
 	const matchData = generateGroupMatches(TEAMS, VENUES);
-	const teamMap = new Map(createdTeams.map((t: { code: string; id: string }) => [t.code, t.id]));
+	const teamMap = new Map(
+		createdTeams.map((t: { code: string; id: string }) => [t.code, t.id]),
+	);
 
 	const createdMatches = await Promise.all(
 		matchData.map((m) =>

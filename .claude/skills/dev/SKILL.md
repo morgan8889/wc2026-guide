@@ -12,5 +12,7 @@ disable-model-invocation: true
 3. **TDD** — write tests first or alongside, run `npx vitest run` frequently
 4. **Implement** — build the feature
 5. **Verify** — start dev server `npm run dev`, check affected routes
-6. **Quality** — run `/check`
-7. **Commit** — `npx biome check --write .` then conventional commit
+6. **Quality gates** — run `/check`
+7. **Code review** — run `/code-review` and fix all findings. Repeat until clean.
+8. **Commit** — `npx biome check --write .` then conventional commit
+9. **Push** — `git push origin <branch>`

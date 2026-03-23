@@ -60,6 +60,17 @@ export async function getGroups(): Promise<string[]> {
 	return teams.map((t) => t.group);
 }
 
+export async function getTeamIdBySearch(
+	search: string,
+): Promise<string | undefined> {
+	if (!search) return undefined;
+	const team = await prisma.team.findFirst({
+		where: { name: { contains: search } },
+		select: { id: true },
+	});
+	return team?.id ?? undefined;
+}
+
 export async function getConfederations(): Promise<string[]> {
 	const teams = await prisma.team.findMany({
 		select: { confederation: true },

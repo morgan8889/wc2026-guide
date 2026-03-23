@@ -112,10 +112,12 @@ export default async function VenueDetailPage({
 								year: "numeric",
 								month: "short",
 								day: "numeric",
+								timeZone: venue.timezone ?? undefined,
 							});
 							const timeStr = date.toLocaleTimeString("en-US", {
 								hour: "2-digit",
 								minute: "2-digit",
+								timeZone: venue.timezone ?? undefined,
 							});
 
 							return (

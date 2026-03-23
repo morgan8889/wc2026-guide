@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface VenueSearchProps {
@@ -12,8 +12,13 @@ export function VenueSearch({ defaultValue }: VenueSearchProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [value, setValue] = useState(defaultValue ?? "");
+	const isFirstRender = useRef(true);
 
 	useEffect(() => {
+		if (isFirstRender.current) {
+			isFirstRender.current = false;
+			return;
+		}
 		const timer = setTimeout(() => {
 			const params = new URLSearchParams(searchParams.toString());
 			if (value.trim()) {

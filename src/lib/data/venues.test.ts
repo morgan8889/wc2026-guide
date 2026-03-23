@@ -160,6 +160,10 @@ describe("getVenueById", () => {
 });
 
 describe("getCountries", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
 	it("returns sorted unique countries", async () => {
 		vi.mocked(prisma.venue.findMany).mockResolvedValue([
 			{ country: "Canada" } as (typeof mockVenues)[0],

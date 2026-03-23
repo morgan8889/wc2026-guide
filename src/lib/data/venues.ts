@@ -14,6 +14,7 @@ export async function getVenues(params?: VenuesParams) {
 			...(country ? { country } : {}),
 			...(search
 				? {
+						// Note: SQLite `contains` is case-sensitive (mode: 'insensitive' is PostgreSQL-only)
 						OR: [
 							{ name: { contains: search } },
 							{ city: { contains: search } },
@@ -51,4 +52,8 @@ export async function getCountries(): Promise<string[]> {
 		orderBy: { country: "asc" },
 	});
 	return venues.map((v) => v.country);
+}
+
+export async function getVenueCount(): Promise<number> {
+	return prisma.venue.count();
 }

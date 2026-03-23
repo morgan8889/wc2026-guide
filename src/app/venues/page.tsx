@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { CountryFilter } from "@/components/venues/CountryFilter";
 import { VenueGrid } from "@/components/venues/VenueGrid";
 import { VenueSearch } from "@/components/venues/VenueSearch";
-import { getCountries, getVenues } from "@/lib/data/venues";
+import { getCountries, getVenueCount, getVenues } from "@/lib/data/venues";
 
 export const metadata: Metadata = {
 	title: "Venues — World Cup 2026 Guide",
@@ -23,9 +23,10 @@ export default async function VenuesPage({ searchParams }: VenuesPageProps) {
 	const params = await searchParams;
 	const { country, search } = params;
 
-	const [venues, countries] = await Promise.all([
+	const [venues, countries, totalCount] = await Promise.all([
 		getVenues({ country, search }),
 		getCountries(),
+		getVenueCount(),
 	]);
 
 	return (
@@ -35,7 +36,7 @@ export default async function VenuesPage({ searchParams }: VenuesPageProps) {
 					Venues
 				</h1>
 				<p className="mt-1 text-zinc-500 dark:text-zinc-400">
-					{venues.length} of 16 stadiums · FIFA World Cup 2026
+					{venues.length} of {totalCount} stadiums · FIFA World Cup 2026
 				</p>
 			</header>
 

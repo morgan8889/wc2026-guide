@@ -2,13 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { COUNTRY_FLAGS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const COUNTRY_FLAGS: Record<string, string> = {
-	USA: "🇺🇸",
-	Mexico: "🇲🇽",
-	Canada: "🇨🇦",
-};
 
 interface CountryFilterProps {
 	countries: string[];

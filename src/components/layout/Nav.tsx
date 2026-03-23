@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
 	{ href: "/", label: "Home" },
 	{ href: "/teams", label: "Teams" },
+	{ href: "/venues", label: "Venues" },
 ];
 
 interface NavProps {

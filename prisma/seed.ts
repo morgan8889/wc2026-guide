@@ -481,7 +481,10 @@ export const VENUES: {
 ];
 
 // Generate group stage matches (each team plays the other 3 in their group)
-export function generateGroupMatches(teams: typeof TEAMS, venues: typeof VENUES) {
+export function generateGroupMatches(
+	teams: typeof TEAMS,
+	venues: typeof VENUES,
+) {
 	const groups = [...new Set(teams.map((t) => t.group))].sort();
 	const matches: {
 		matchNumber: number;

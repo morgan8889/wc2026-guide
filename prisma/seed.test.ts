@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TEAMS, VENUES, generateGroupMatches } from "./seed";
+import { generateGroupMatches, TEAMS, VENUES } from "./seed";
 
 const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 const CONFEDERATIONS = ["UEFA", "CONMEBOL", "CONCACAF", "AFC", "CAF", "OFC"];

@@ -4,10 +4,15 @@ import type { MatchWithTeamsAndVenue } from "@/lib/data/matches";
 
 interface UpcomingMatchesProps {
 	matches: MatchWithTeamsAndVenue[];
+	title?: string;
 	className?: string;
 }
 
-export function UpcomingMatches({ matches, className }: UpcomingMatchesProps) {
+export function UpcomingMatches({
+	matches,
+	title = "Upcoming Matches",
+	className,
+}: UpcomingMatchesProps) {
 	return (
 		<section className={className} aria-labelledby="upcoming-matches-heading">
 			<div className="flex items-center justify-between mb-4">
@@ -15,7 +20,7 @@ export function UpcomingMatches({ matches, className }: UpcomingMatchesProps) {
 					id="upcoming-matches-heading"
 					className="text-xl font-bold text-zinc-900 dark:text-zinc-100"
 				>
-					Upcoming Matches
+					{title}
 				</h2>
 				<Link
 					href="/matches"

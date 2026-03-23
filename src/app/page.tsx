@@ -5,23 +5,21 @@ import { Hero } from "@/components/home/Hero";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { UpcomingMatches } from "@/components/home/UpcomingMatches";
 import { getAllGroupStandings } from "@/lib/data/groups";
-import { getMatches } from "@/lib/data/matches";
+import {
+	getRecentMatches,
+	getUpcomingMatches,
+} from "@/lib/data/matches";
 
 export default async function HomePage() {
-	const now = new Date();
-
-	const [allMatches, groupStandings] = await Promise.all([
-		getMatches(),
+	const [upcoming, groupStandings] = await Promise.all([
+		getUpcomingMatches(5),
 		getAllGroupStandings(),
 	]);
 
-	// Next 5 upcoming matches from today; fall back to first 5 if all in future
-	const upcoming = allMatches
-		.filter((m) => m.dateTime >= now && m.status !== "COMPLETED")
-		.slice(0, 5);
-
-	const upcomingMatches =
-		upcoming.length > 0 ? upcoming : allMatches.slice(0, 5);
+	// If no upcoming scheduled matches (tournament over or no data), fall back
+	// to the 5 most recently completed matches under a "Recent Matches" heading.
+	const isFallback = upcoming.length === 0;
+	const matches = isFallback ? await getRecentMatches(5) : upcoming;
 
 	return (
 		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -29,7 +27,10 @@ export default async function HomePage() {
 
 			<div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 space-y-12">
 				<QuickLinks />
-				<UpcomingMatches matches={upcomingMatches} />
+				<UpcomingMatches
+					matches={matches}
+					title={isFallback ? "Recent Matches" : "Upcoming Matches"}
+				/>
 				<GroupOverview standings={groupStandings} />
 			</div>
 		</div>

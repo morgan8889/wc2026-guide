@@ -48,10 +48,17 @@ const makeMatch = (id: string, home: string, away: string) => ({
 });
 
 describe("UpcomingMatches", () => {
-	it("renders the section heading", () => {
+	it("renders the default section heading", () => {
 		render(<UpcomingMatches matches={[]} />);
 		expect(
 			screen.getByRole("heading", { name: /Upcoming Matches/i }),
+		).toBeInTheDocument();
+	});
+
+	it("renders a custom title when provided", () => {
+		render(<UpcomingMatches matches={[]} title="Recent Matches" />);
+		expect(
+			screen.getByRole("heading", { name: /Recent Matches/i }),
 		).toBeInTheDocument();
 	});
 

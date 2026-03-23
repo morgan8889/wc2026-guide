@@ -16,7 +16,9 @@ import {
 	getMatchCount,
 	getMatches,
 	getMatchesByGroup,
+	getRecentMatches,
 	getStages,
+	getUpcomingMatches,
 } from "./matches";
 
 const mockVenue = {
@@ -222,6 +224,48 @@ describe("getStages", () => {
 			}),
 		);
 		expect(stages).toEqual(["GROUP", "ROUND_OF_16"]);
+	});
+});
+
+describe("getUpcomingMatches", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("queries scheduled matches from now with a limit", async () => {
+		vi.mocked(prisma.match.findMany).mockResolvedValue([mockMatch]);
+
+		const matches = await getUpcomingMatches(5);
+
+		expect(prisma.match.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: expect.objectContaining({ status: "SCHEDULED" }),
+				orderBy: { dateTime: "asc" },
+				take: 5,
+			}),
+		);
+		expect(matches).toEqual([mockMatch]);
+	});
+});
+
+describe("getRecentMatches", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("queries completed matches ordered desc with a limit", async () => {
+		vi.mocked(prisma.match.findMany).mockResolvedValue([mockMatch]);
+
+		const matches = await getRecentMatches(5);
+
+		expect(prisma.match.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: { status: "COMPLETED" },
+				orderBy: { dateTime: "desc" },
+				take: 5,
+			}),
+		);
+		expect(matches).toEqual([mockMatch]);
 	});
 });
 

@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Team {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  code         String   @unique // FIFA code e.g. "USA", "MEX"
+  flag         String?  // emoji or URL
+  group        String   // e.g. "A", "B"
+  confederation String  // e.g. "UEFA", "CONCACAF"
+  ranking      Int?
+  coach        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  homeMatches  Match[]  @relation("HomeTeam")
+  awayMatches  Match[]  @relation("AwayTeam")
+  players      Player[]
+
+  @@map("teams")
+}
+
+model Player {
+  id        String @id @default(cuid())
+  name      String
+  position  String // GK, DEF, MID, FWD
+  number    Int?
+  club      String?
+  teamId    String
+  team      Team   @relation(fields: [teamId], references: [id])
+
+  @@map("players")
+}
+
+model Venue {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  city      String
+  country   String   // USA, Mexico, Canada
+  capacity  Int
+  imageUrl  String?
+  latitude  Float?
+  longitude Float?
+  timezone  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  matches   Match[]
+
+  @@map("venues")
+}
+
+model Match {
+  id             String    @id @default(cuid())
+  matchNumber    Int       @unique
+  stage          String    // GROUP, ROUND_OF_32, ROUND_OF_16, QUARTER, SEMI, THIRD_PLACE, FINAL
+  group          String?   // null for knockout
+  dateTime       DateTime
+  homeTeamId     String?
+  homeTeam       Team?     @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeamId     String?
+  awayTeam       Team?     @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  homeScore      Int?
+  awayScore      Int?
+  homePenalties  Int?
+  awayPenalties  Int?
+  status         String    @default("SCHEDULED") // SCHEDULED, LIVE, COMPLETED
+  venueId        String
+  venue          Venue     @relation(fields: [venueId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("matches")
+}

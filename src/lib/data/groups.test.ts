@@ -234,14 +234,26 @@ describe("getGroupStandings", () => {
 	});
 });
 
+const teamE = makeTeam({
+	id: "t5",
+	name: "Brazil",
+	code: "BRA",
+	flag: "🇧🇷",
+	group: "B",
+});
+
 describe("getAllGroupStandings", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it("returns standings for all groups", async () => {
+	it("returns standings for all groups using batched queries", async () => {
 		vi.mocked(getGroupLetters).mockResolvedValue(["A", "B"]);
-		vi.mocked(prisma.team.findMany).mockResolvedValue([teamA]);
+		// Single batch: all teams (with group field), all completed group matches
+		vi.mocked(prisma.team.findMany).mockResolvedValue([
+			{ ...teamA, group: "A" },
+			{ ...teamE, group: "B" },
+		]);
 		vi.mocked(prisma.match.findMany).mockResolvedValue([]);
 
 		const all = await getAllGroupStandings();
@@ -249,5 +261,8 @@ describe("getAllGroupStandings", () => {
 		expect(Object.keys(all)).toEqual(["A", "B"]);
 		expect(all.A).toHaveLength(1);
 		expect(all.B).toHaveLength(1);
+		// Batched: only 2 DB queries total (teams + matches), not 24
+		expect(prisma.team.findMany).toHaveBeenCalledTimes(1);
+		expect(prisma.match.findMany).toHaveBeenCalledTimes(1);
 	});
 });

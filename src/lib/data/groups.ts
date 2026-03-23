@@ -1,47 +1,21 @@
 import { getGroups as getGroupLetters } from "@/lib/data/teams";
 import { prisma } from "@/lib/prisma";
 
-export interface TeamStanding {
-	teamId: string;
+type MatchRow = {
+	homeTeamId: string | null;
+	awayTeamId: string | null;
+	homeScore: number | null;
+	awayScore: number | null;
+};
+
+type TeamRow = {
+	id: string;
 	name: string;
 	code: string;
 	flag: string | null;
-	played: number;
-	won: number;
-	drawn: number;
-	lost: number;
-	goalsFor: number;
-	goalsAgainst: number;
-	goalDifference: number;
-	points: number;
-}
+};
 
-export async function getGroupStandings(
-	group: string,
-): Promise<TeamStanding[]> {
-	const teams = await prisma.team.findMany({
-		where: { group },
-		select: { id: true, name: true, code: true, flag: true },
-	});
-
-	const matches = await prisma.match.findMany({
-		where: {
-			group,
-			stage: "GROUP",
-			status: "COMPLETED",
-			homeTeamId: { not: null },
-			awayTeamId: { not: null },
-			homeScore: { not: null },
-			awayScore: { not: null },
-		},
-		select: {
-			homeTeamId: true,
-			awayTeamId: true,
-			homeScore: true,
-			awayScore: true,
-		},
-	});
-
+function buildStandings(teams: TeamRow[], matches: MatchRow[]): TeamStanding[] {
 	const standingsMap = new Map<string, TeamStanding>();
 
 	for (const team of teams) {
@@ -113,18 +87,86 @@ export async function getGroupStandings(
 	);
 }
 
+export interface TeamStanding {
+	teamId: string;
+	name: string;
+	code: string;
+	flag: string | null;
+	played: number;
+	won: number;
+	drawn: number;
+	lost: number;
+	goalsFor: number;
+	goalsAgainst: number;
+	goalDifference: number;
+	points: number;
+}
+
+export async function getGroupStandings(
+	group: string,
+): Promise<TeamStanding[]> {
+	const [teams, matches] = await Promise.all([
+		prisma.team.findMany({
+			where: { group },
+			select: { id: true, name: true, code: true, flag: true },
+		}),
+		prisma.match.findMany({
+			where: {
+				group,
+				stage: "GROUP",
+				status: "COMPLETED",
+				homeTeamId: { not: null },
+				awayTeamId: { not: null },
+				homeScore: { not: null },
+				awayScore: { not: null },
+			},
+			select: {
+				homeTeamId: true,
+				awayTeamId: true,
+				homeScore: true,
+				awayScore: true,
+			},
+		}),
+	]);
+
+	return buildStandings(teams, matches);
+}
+
 export async function getAllGroupStandings(): Promise<
 	Record<string, TeamStanding[]>
 > {
-	const groups = await getGroupLetters();
-	const results = await Promise.all(
-		groups.map(async (g) => ({
-			group: g,
-			standings: await getGroupStandings(g),
-		})),
-	);
+	const [groups, allTeams, allMatches] = await Promise.all([
+		getGroupLetters(),
+		prisma.team.findMany({
+			select: { id: true, name: true, code: true, flag: true, group: true },
+		}),
+		prisma.match.findMany({
+			where: {
+				stage: "GROUP",
+				status: "COMPLETED",
+				homeTeamId: { not: null },
+				awayTeamId: { not: null },
+				homeScore: { not: null },
+				awayScore: { not: null },
+			},
+			select: {
+				group: true,
+				homeTeamId: true,
+				awayTeamId: true,
+				homeScore: true,
+				awayScore: true,
+			},
+		}),
+	]);
+
 	return Object.fromEntries(
-		results.map(({ group, standings }) => [group, standings]),
+		groups.map((g) => [
+			g,
+			buildStandings(
+				allTeams.filter((t) => t.group === g),
+				allMatches.filter((m) => m.group === g),
+			),
+		]),
 	);
 }
 

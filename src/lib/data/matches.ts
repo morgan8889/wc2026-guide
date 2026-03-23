@@ -95,6 +95,32 @@ export async function getStages(): Promise<string[]> {
 	return matches.map((m) => m.stage);
 }
 
+export async function getUpcomingMatches(
+	limit: number,
+): Promise<MatchWithTeamsAndVenue[]> {
+	const now = new Date();
+	return prisma.match.findMany({
+		where: {
+			dateTime: { gte: now },
+			status: "SCHEDULED",
+		},
+		include: matchInclude,
+		orderBy: { dateTime: "asc" },
+		take: limit,
+	});
+}
+
+export async function getRecentMatches(
+	limit: number,
+): Promise<MatchWithTeamsAndVenue[]> {
+	return prisma.match.findMany({
+		where: { status: "COMPLETED" },
+		include: matchInclude,
+		orderBy: { dateTime: "desc" },
+		take: limit,
+	});
+}
+
 export async function getMatchCount(): Promise<number> {
 	return prisma.match.count();
 }

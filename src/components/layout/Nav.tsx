@@ -8,6 +8,7 @@ const navLinks = [
 	{ href: "/", label: "Home" },
 	{ href: "/teams", label: "Teams" },
 	{ href: "/venues", label: "Venues" },
+	{ href: "/matches", label: "Schedule" },
 ];
 
 interface NavProps {

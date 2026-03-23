@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StandingsTable } from "@/components/groups/StandingsTable";
 import { MatchCard } from "@/components/matches/MatchCard";
@@ -40,12 +41,12 @@ export default async function GroupPage({ params }: GroupPageProps) {
 		<div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
 			<header className="mb-8">
 				<div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-					<a
+					<Link
 						href="/groups"
 						className="hover:text-zinc-900 dark:hover:text-zinc-100"
 					>
 						Groups
-					</a>
+					</Link>
 					<span aria-hidden="true">/</span>
 					<span className="text-zinc-900 dark:text-zinc-100">
 						Group {group}

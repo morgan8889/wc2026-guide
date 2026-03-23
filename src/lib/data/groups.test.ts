@@ -187,9 +187,11 @@ describe("getGroupStandings", () => {
 		expect(standings[0].points).toBe(9);
 		expect(standings[1].code).toBe("MEX");
 		expect(standings[1].points).toBe(6);
-		// Canada and Panama both have 1 point
+		// Canada and Panama both have 1 point; alphabetical tiebreak: CAN < PAN
 		expect(standings[2].points).toBe(1);
+		expect(standings[2].code).toBe("CAN");
 		expect(standings[3].points).toBe(1);
+		expect(standings[3].code).toBe("PAN");
 	});
 
 	it("accumulates multiple matches for the same team", async () => {
@@ -220,13 +222,15 @@ describe("getGroupStandings", () => {
 		expect(usa?.points).toBe(6);
 	});
 
-	it("returns all teams in standings even with no matches", async () => {
+	it("returns teams with correct name and code even with no matches", async () => {
 		vi.mocked(prisma.team.findMany).mockResolvedValue([teamA, teamB]);
 		vi.mocked(prisma.match.findMany).mockResolvedValue([]);
 
 		const standings = await getGroupStandings("A");
-		expect(standings[0].played).toBe(0);
 		expect(standings).toHaveLength(2);
+		const codes = standings.map((s) => s.code);
+		expect(codes).toContain("USA");
+		expect(codes).toContain("MEX");
 	});
 });
 

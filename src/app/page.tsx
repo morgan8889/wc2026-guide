@@ -5,10 +5,7 @@ import { Hero } from "@/components/home/Hero";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { UpcomingMatches } from "@/components/home/UpcomingMatches";
 import { getAllGroupStandings } from "@/lib/data/groups";
-import {
-	getRecentMatches,
-	getUpcomingMatches,
-} from "@/lib/data/matches";
+import { getRecentMatches, getUpcomingMatches } from "@/lib/data/matches";
 
 export default async function HomePage() {
 	const [upcoming, groupStandings] = await Promise.all([

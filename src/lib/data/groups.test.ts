@@ -234,7 +234,13 @@ describe("getGroupStandings", () => {
 	});
 });
 
-const teamE = makeTeam({ id: "t5", name: "Brazil", code: "BRA", flag: "🇧🇷", group: "B" });
+const teamE = makeTeam({
+	id: "t5",
+	name: "Brazil",
+	code: "BRA",
+	flag: "🇧🇷",
+	group: "B",
+});
 
 describe("getAllGroupStandings", () => {
 	beforeEach(() => {

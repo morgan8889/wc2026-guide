@@ -1,13 +1,16 @@
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@prisma/client";
 
+// The seed script intentionally owns its own PrismaClient instance (rather than
+// reusing the shared singleton from src/lib/prisma.ts) so it can call
+// $disconnect() explicitly after seeding and control the full connection lifecycle.
 const adapter = new PrismaBetterSqlite3({
 	url: process.env.DATABASE_URL ?? "file:./dev.db",
 });
 const prisma = new PrismaClient({ adapter });
 
 // FIFA World Cup 2026 — 48 teams in 12 groups
-const TEAMS: {
+export const TEAMS: {
 	name: string;
 	code: string;
 	group: string;
@@ -322,7 +325,7 @@ const TEAMS: {
 	},
 ];
 
-const VENUES: {
+export const VENUES: {
 	name: string;
 	city: string;
 	country: string;
@@ -478,7 +481,7 @@ const VENUES: {
 ];
 
 // Generate group stage matches (each team plays the other 3 in their group)
-function generateGroupMatches(teams: typeof TEAMS, venues: typeof VENUES) {
+export function generateGroupMatches(teams: typeof TEAMS, venues: typeof VENUES) {
 	const groups = [...new Set(teams.map((t) => t.group))].sort();
 	const matches: {
 		matchNumber: number;
@@ -508,6 +511,7 @@ function generateGroupMatches(teams: typeof TEAMS, venues: typeof VENUES) {
 
 		for (let i = 0; i < pairings.length; i++) {
 			const [h, a] = pairings[i];
+			// TODO: replace with official FIFA schedule when published
 			const dayOffset = i < 2 ? 0 : i < 4 ? 4 : 8;
 			const date = new Date(startDate);
 			date.setDate(date.getDate() + dayOffset + groups.indexOf(group));
@@ -565,29 +569,42 @@ async function seed() {
 	);
 
 	const createdMatches = await Promise.all(
-		matchData.map((m) =>
-			prisma.match.create({
+		matchData.map((m) => {
+			const homeTeamId = teamMap.get(m.homeTeamCode);
+			const awayTeamId = teamMap.get(m.awayTeamCode);
+			if (!homeTeamId)
+				throw new Error(
+					`Unknown home team code "${m.homeTeamCode}" in match ${m.matchNumber}`,
+				);
+			if (!awayTeamId)
+				throw new Error(
+					`Unknown away team code "${m.awayTeamCode}" in match ${m.matchNumber}`,
+				);
+			return prisma.match.create({
 				data: {
 					matchNumber: m.matchNumber,
 					stage: m.stage,
 					group: m.group,
 					dateTime: m.dateTime,
-					homeTeamId: teamMap.get(m.homeTeamCode) ?? "",
-					awayTeamId: teamMap.get(m.awayTeamCode) ?? "",
+					homeTeamId,
+					awayTeamId,
 					venueId: createdVenues[m.venueIndex].id,
 					status: "SCHEDULED",
 				},
-			}),
-		),
+			});
+		}),
 	);
 	console.log(`✅ ${createdMatches.length} matches created`);
 
 	console.log("🏆 Seed complete!");
 }
 
-seed()
-	.catch((e) => {
-		console.error("❌ Seed failed:", e);
-		process.exit(1);
-	})
-	.finally(() => prisma.$disconnect());
+// Only execute when run directly (e.g. npx tsx prisma/seed.ts), not when imported in tests
+if (process.argv[1]?.endsWith("seed.ts")) {
+	seed()
+		.catch((e) => {
+			console.error("❌ Seed failed:", e);
+			process.exit(1);
+		})
+		.finally(() => prisma.$disconnect());
+}

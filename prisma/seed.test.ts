@@ -1,79 +1,63 @@
 import { describe, expect, it } from "vitest";
-
-// Test seed data integrity without needing DB
-// Import the data constants directly by re-declaring them here
-// (seed.ts doesn't export them, so we validate the expected shape)
-
-const EXPECTED_TEAMS = 48;
-const EXPECTED_GROUPS = 12;
-const EXPECTED_TEAMS_PER_GROUP = 4;
-const EXPECTED_VENUES = 16;
-const EXPECTED_MATCHES_PER_GROUP = 6;
-const EXPECTED_GROUP_MATCHES = EXPECTED_GROUPS * EXPECTED_MATCHES_PER_GROUP; // 72
+import { TEAMS, VENUES, generateGroupMatches } from "./seed";
 
 const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
-
 const CONFEDERATIONS = ["UEFA", "CONMEBOL", "CONCACAF", "AFC", "CAF", "OFC"];
-
 const VENUE_COUNTRIES = ["USA", "Mexico", "Canada"];
 
 describe("World Cup 2026 Seed Data Validation", () => {
 	describe("Teams", () => {
 		it("should have exactly 48 teams", () => {
-			expect(EXPECTED_TEAMS).toBe(48);
+			expect(TEAMS).toHaveLength(48);
 		});
 
 		it("should have 12 groups", () => {
-			expect(GROUPS).toHaveLength(EXPECTED_GROUPS);
+			const groups = [...new Set(TEAMS.map((t) => t.group))].sort();
+			expect(groups).toHaveLength(12);
 		});
 
 		it("should have 4 teams per group", () => {
-			expect(EXPECTED_TEAMS_PER_GROUP * EXPECTED_GROUPS).toBe(EXPECTED_TEAMS);
+			for (const group of GROUPS) {
+				const teamsInGroup = TEAMS.filter((t) => t.group === group);
+				expect(teamsInGroup).toHaveLength(4);
+			}
 		});
 
 		it("should have valid group letters A through L", () => {
-			expect(GROUPS).toEqual([
-				"A",
-				"B",
-				"C",
-				"D",
-				"E",
-				"F",
-				"G",
-				"H",
-				"I",
-				"J",
-				"K",
-				"L",
-			]);
+			const groups = [...new Set(TEAMS.map((t) => t.group))].sort();
+			expect(groups).toEqual(GROUPS);
 		});
 
 		it("should only use valid confederations", () => {
-			for (const conf of CONFEDERATIONS) {
-				expect(["UEFA", "CONMEBOL", "CONCACAF", "AFC", "CAF", "OFC"]).toContain(
-					conf,
-				);
+			for (const team of TEAMS) {
+				expect(CONFEDERATIONS).toContain(team.confederation);
 			}
 		});
 	});
 
 	describe("Venues", () => {
 		it("should have exactly 16 venues", () => {
-			expect(EXPECTED_VENUES).toBe(16);
+			expect(VENUES).toHaveLength(16);
 		});
 
 		it("should have venues in USA, Mexico, and Canada only", () => {
-			expect(VENUE_COUNTRIES).toEqual(["USA", "Mexico", "Canada"]);
+			const countries = [...new Set(VENUES.map((v) => v.country))].sort();
+			expect(countries).toEqual([...VENUE_COUNTRIES].sort());
 		});
 	});
 
 	describe("Group Stage Matches", () => {
+		const matches = generateGroupMatches(TEAMS, VENUES);
+
 		it("should have 72 group stage matches (6 per group × 12 groups)", () => {
-			expect(EXPECTED_GROUP_MATCHES).toBe(72);
+			expect(matches).toHaveLength(72);
 		});
 
-		it("should have 6 matches per group (each team plays 3)", () => {
-			expect(EXPECTED_MATCHES_PER_GROUP).toBe(6);
+		it("should have 6 matches per group", () => {
+			for (const group of GROUPS) {
+				const groupMatches = matches.filter((m) => m.group === group);
+				expect(groupMatches).toHaveLength(6);
+			}
 		});
 	});
 

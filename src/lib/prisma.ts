@@ -6,6 +6,9 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient(): PrismaClient {
+	// DATABASE_URL should be set in .env (e.g. "file:./dev.db"). The default
+	// resolves to dev.db in the project root (CWD when Next.js runs), which is
+	// also where `prisma migrate dev` writes the file with this configuration.
 	const adapter = new PrismaBetterSqlite3({
 		url: process.env.DATABASE_URL ?? "file:./dev.db",
 	});

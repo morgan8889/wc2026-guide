@@ -277,7 +277,7 @@ export const TEAMS: {
 		name: "TBD (Inter-confederation Playoff 2)",
 		code: "TBF",
 		group: "I",
-		confederation: "CAF",
+		confederation: "Inter-confederation",
 		flag: "🏳️",
 	},
 	// Group J: Argentina, Austria, Algeria, Jordan
@@ -335,7 +335,7 @@ export const TEAMS: {
 		name: "TBD (Inter-confederation Playoff 1)",
 		code: "TBE",
 		group: "K",
-		confederation: "CONCACAF",
+		confederation: "Inter-confederation",
 		flag: "🏳️",
 	},
 	// Group L: England, Croatia, Panama, Ghana

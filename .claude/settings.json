@@ -1,5 +1,16 @@
 {
 	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": ".claude/hooks/check-acp.sh"
+					}
+				]
+			}
+		],
 		"PostToolUse": [
 			{
 				"matcher": "write_file",

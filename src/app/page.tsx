@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { GroupOverview } from "@/components/home/GroupOverview";
 import { Hero } from "@/components/home/Hero";
+import { NextMatchCountdown } from "@/components/home/NextMatchCountdown";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { UpcomingMatches } from "@/components/home/UpcomingMatches";
 import { getAllGroupStandings } from "@/lib/data/groups";
@@ -17,6 +18,7 @@ export default async function HomePage() {
 		getAllGroupStandings(),
 		getMatchCount(),
 	]);
+	const nextMatch = upcoming[0] ?? null;
 
 	// If no upcoming scheduled matches (tournament over or no data), fall back
 	// to the 5 most recently completed matches under a "Recent Matches" heading.
@@ -32,6 +34,7 @@ export default async function HomePage() {
 
 			<div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 space-y-12">
 				<QuickLinks />
+				<NextMatchCountdown match={nextMatch} />
 				<UpcomingMatches
 					matches={matches}
 					title={isFallback ? "Recent Matches" : "Upcoming Matches"}

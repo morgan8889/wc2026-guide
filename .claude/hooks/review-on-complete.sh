@@ -1,12 +1,15 @@
 #!/bin/bash
-# TaskCompleted hook: enforce quality gates before allowing task completion
-# Exit 0 = allow completion, Exit 2 = reject with feedback (stderr → Claude)
+# Stop hook: run quality gates when Claude finishes a turn with actual file changes.
+# Exit 0 = allow, Exit 2 = reject with feedback (stderr → Claude).
+# Fires on every Stop event — guards against no-change turns with early exit.
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-# Check for any changes vs main — committed OR uncommitted
+# Check for any changes vs main — committed OR uncommitted OR untracked
 DIFF=$(git diff main --stat 2>/dev/null; git diff --stat 2>/dev/null; git diff --cached --stat 2>/dev/null)
-if [ -z "$DIFF" ]; then
+UNTRACKED=$(git ls-files --others --exclude-standard 2>/dev/null | head -1)
+
+if [ -z "$DIFF" ] && [ -z "$UNTRACKED" ]; then
   exit 0
 fi
 
@@ -44,7 +47,7 @@ openclaw message send \
   --channel telegram \
   --account lovelace \
   --target 7775782519 \
-  --message "✅ Quality gates passed (TaskCompleted hook)
+  --message "✅ Quality gates passed (Stop hook)
 • biome: clean
 • tsc: clean
 • vitest: all passing

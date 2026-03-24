@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateGroupMatches, TEAMS, VENUES } from "./seed";
+import { OFFICIAL_MATCHES, TEAMS, VENUES } from "./seed";
 
 const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 const CONFEDERATIONS = [
@@ -54,61 +54,61 @@ describe("World Cup 2026 Seed Data Validation", () => {
 		});
 	});
 
-	describe("Group Stage Matches", () => {
-		const matches = generateGroupMatches(TEAMS, VENUES);
+	describe("Official Group Stage Matches", () => {
+		const venueNames = new Set(VENUES.map((v) => v.name));
+		const teamCodes = new Set(TEAMS.map((t) => t.code));
 
-		it("should have 72 group stage matches (6 per group × 12 groups)", () => {
-			expect(matches).toHaveLength(72);
+		it("should have exactly 72 group stage matches (6 per group × 12 groups)", () => {
+			expect(OFFICIAL_MATCHES).toHaveLength(72);
 		});
 
 		it("should have 6 matches per group", () => {
 			for (const group of GROUPS) {
-				const groupMatches = matches.filter((m) => m.group === group);
+				const groupMatches = OFFICIAL_MATCHES.filter((m) => m.group === group);
 				expect(groupMatches).toHaveLength(6);
 			}
 		});
-	});
 
-	describe("Match Pairings", () => {
-		it("each team in a group of 4 plays exactly 3 matches", () => {
-			// Pairings: [0,1], [2,3], [0,2], [1,3], [0,3], [1,2]
-			const pairings = [
-				[0, 1],
-				[2, 3],
-				[0, 2],
-				[1, 3],
-				[0, 3],
-				[1, 2],
-			];
+		it("should have sequential match numbers 1 through 72", () => {
+			const numbers = OFFICIAL_MATCHES.map((m) => m.matchNumber).sort(
+				(a, b) => a - b,
+			);
+			expect(numbers).toEqual(Array.from({ length: 72 }, (_, i) => i + 1));
+		});
 
-			// Count appearances per team index
-			const appearances = [0, 0, 0, 0];
-			for (const [h, a] of pairings) {
-				appearances[h]++;
-				appearances[a]++;
-			}
-
-			// Each team should appear exactly 3 times
-			for (const count of appearances) {
-				expect(count).toBe(3);
+		it("should only reference valid team codes", () => {
+			for (const match of OFFICIAL_MATCHES) {
+				expect(teamCodes).toContain(match.homeTeamCode);
+				expect(teamCodes).toContain(match.awayTeamCode);
 			}
 		});
 
-		it("pairings cover all possible combinations in a group of 4", () => {
-			const pairings = [
-				[0, 1],
-				[2, 3],
-				[0, 2],
-				[1, 3],
-				[0, 3],
-				[1, 2],
-			];
+		it("should only reference valid venue names", () => {
+			for (const match of OFFICIAL_MATCHES) {
+				expect(venueNames).toContain(match.venueName);
+			}
+		});
 
-			// All unique pairs from 4 teams: C(4,2) = 6
-			const uniquePairs = new Set(
-				pairings.map(([a, b]) => `${Math.min(a, b)}-${Math.max(a, b)}`),
-			);
-			expect(uniquePairs.size).toBe(6);
+		it("each team plays exactly 3 matches in their group", () => {
+			for (const group of GROUPS) {
+				const groupTeams = TEAMS.filter((t) => t.group === group);
+				const groupMatches = OFFICIAL_MATCHES.filter((m) => m.group === group);
+				for (const team of groupTeams) {
+					const appearances = groupMatches.filter(
+						(m) => m.homeTeamCode === team.code || m.awayTeamCode === team.code,
+					).length;
+					expect(appearances).toBe(3);
+				}
+			}
+		});
+
+		it("all match dates should fall within the group stage window (Jun 11–28, 2026)", () => {
+			const start = new Date("2026-06-11T00:00:00Z");
+			const end = new Date("2026-06-29T00:00:00Z");
+			for (const match of OFFICIAL_MATCHES) {
+				expect(match.dateTime >= start).toBe(true);
+				expect(match.dateTime < end).toBe(true);
+			}
 		});
 	});
 });

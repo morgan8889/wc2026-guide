@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 import { generateGroupMatches, TEAMS, VENUES } from "./seed";
 
 const GROUPS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
-const CONFEDERATIONS = ["UEFA", "CONMEBOL", "CONCACAF", "AFC", "CAF", "OFC"];
+const CONFEDERATIONS = [
+	"UEFA",
+	"CONMEBOL",
+	"CONCACAF",
+	"AFC",
+	"CAF",
+	"OFC",
+	"Inter-confederation",
+];
 const VENUE_COUNTRIES = ["USA", "Mexico", "Canada"];
 
 describe("World Cup 2026 Seed Data Validation", () => {

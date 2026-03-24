@@ -5,12 +5,17 @@ import { Hero } from "@/components/home/Hero";
 import { QuickLinks } from "@/components/home/QuickLinks";
 import { UpcomingMatches } from "@/components/home/UpcomingMatches";
 import { getAllGroupStandings } from "@/lib/data/groups";
-import { getRecentMatches, getUpcomingMatches } from "@/lib/data/matches";
+import {
+	getMatchCount,
+	getRecentMatches,
+	getUpcomingMatches,
+} from "@/lib/data/matches";
 
 export default async function HomePage() {
-	const [upcoming, groupStandings] = await Promise.all([
+	const [upcoming, groupStandings, matchCount] = await Promise.all([
 		getUpcomingMatches(5),
 		getAllGroupStandings(),
+		getMatchCount(),
 	]);
 
 	// If no upcoming scheduled matches (tournament over or no data), fall back
@@ -20,7 +25,10 @@ export default async function HomePage() {
 
 	return (
 		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-			<Hero className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800" />
+			<Hero
+				className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800"
+				matchCount={matchCount}
+			/>
 
 			<div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 space-y-12">
 				<QuickLinks />

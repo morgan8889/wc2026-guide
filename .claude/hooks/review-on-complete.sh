@@ -4,8 +4,8 @@
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-# Only run if there are changes from main
-DIFF=$(git diff main --stat 2>/dev/null)
+# Check for any changes vs main — committed OR uncommitted
+DIFF=$(git diff main --stat 2>/dev/null; git diff --stat 2>/dev/null; git diff --cached --stat 2>/dev/null)
 if [ -z "$DIFF" ]; then
   exit 0
 fi

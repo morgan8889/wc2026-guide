@@ -89,6 +89,9 @@ export function MatchCard({
 					<span className="text-xs text-zinc-400 dark:text-zinc-500">
 						{timeStr}
 					</span>
+					<span className="text-xs text-zinc-400 dark:text-zinc-500">
+						Match {matchNumber}
+					</span>
 				</div>
 				<div className="flex items-center gap-2">
 					{isLive && (

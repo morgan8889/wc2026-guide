@@ -1,8 +1,9 @@
 interface HeroProps {
 	className?: string;
+	matchCount: number;
 }
 
-export function Hero({ className }: HeroProps) {
+export function Hero({ className, matchCount }: HeroProps) {
 	return (
 		<section className={className} aria-label="FIFA World Cup 2026 hero">
 			<div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20 text-center">
@@ -41,7 +42,7 @@ export function Hero({ className }: HeroProps) {
 					</div>
 					<div className="flex flex-col items-center gap-1">
 						<span className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">
-							104
+							{matchCount}
 						</span>
 						<span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
 							Matches

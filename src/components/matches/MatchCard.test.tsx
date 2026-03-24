@@ -92,4 +92,9 @@ describe("MatchCard", () => {
 		const tbdElements = screen.getAllByText("TBD");
 		expect(tbdElements).toHaveLength(2);
 	});
+
+	it("renders match number label", () => {
+		render(<MatchCard {...defaultMatch} matchNumber={42} />);
+		expect(screen.getByText("Match 42")).toBeInTheDocument();
+	});
 });

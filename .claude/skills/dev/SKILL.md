@@ -15,4 +15,4 @@ disable-model-invocation: true
 6. **Quality gates** — run `/check`
 7. **Code review** — run `/code-review` and fix all findings. Repeat until clean.
 8. **Commit** — `npx biome check --write .` then conventional commit
-9. **Push** — `git push origin <branch>`
+9. **Open PR** — `.claude/scripts/open-pr.sh --title "..." --head <branch>` (creates PR + sends waiting notification atomically)

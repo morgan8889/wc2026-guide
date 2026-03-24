@@ -22,7 +22,7 @@
 				]
 			}
 		],
-		"TaskCompleted": [
+		"Stop": [
 			{
 				"matcher": "",
 				"hooks": [

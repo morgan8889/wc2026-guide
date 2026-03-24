@@ -1,12 +1,6 @@
 #!/bin/bash
 # TaskCompleted hook: enforce quality gates before allowing task completion
 # Exit 0 = allow completion, Exit 2 = reject with feedback (stderr → Claude)
-#
-# Strategy (from community research):
-# - Deterministic checks (fast, free): biome, tsc, vitest, build
-# - These catch 80% of issues mechanically
-# - Semantic review (slow, costs tokens) runs via GitHub Actions after PR
-# - TaskCompleted + exit code 2 is the recommended enforcement mechanism
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
@@ -44,6 +38,18 @@ if [ -n "$ERRORS" ]; then
   echo -e "$ERRORS" >&2
   exit 2
 fi
+
+# All gates passed — notify Nick
+openclaw message send \
+  --channel telegram \
+  --account lovelace \
+  --target 7775782519 \
+  --message "✅ Quality gates passed (TaskCompleted hook)
+• biome: clean
+• tsc: clean
+• vitest: all passing
+
+Changes ready to commit + PR." 2>/dev/null || true
 
 echo "✅ All quality gates passed." >&2
 exit 0
